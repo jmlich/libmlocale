@@ -290,7 +290,8 @@ bool MTranslationCatalog::loadWith(MLocale *mlocale, MLocale::Category category)
     // load "foo_de.qm" because the language has been switched to German
     // but "foo_de.qm" does not exist. We do *not* want to keep the previous
     // "foo_ar.qm" contents in that case.
-    _translator.load("", 0);
+    bool _ = _translator.load("", 0);
+    Q_UNUSED(_)
     return false;
 }
 
