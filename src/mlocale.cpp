@@ -3846,13 +3846,22 @@ QStringList MLocale::exemplarCharactersIndex() const
     // the current locale:
     QStringList exemplarCharactersIndex
         = QString::fromUtf8("A B C D E F G H I J K L M N O P Q R S T U V W X Y Z")
-        .split(QLatin1String(" "),QString::SkipEmptyParts);
+#if QT_VERSION < 0x051500
+            .split(QLatin1String(" "),QString::SkipEmptyParts);
+#else
+            .split(QLatin1String(" "),Qt::SkipEmptyParts);
+#endif
     QString charStr;
     if (collationLocaleName.contains(QLatin1String("collation=unihan"))) {
         charStr = QString::fromUtf8("⼀ ⼁ ⼂ ⼃ ⼄ ⼅ ⼆ ⼇ ⼈ ⼉ ⼊ ⼋ ⼌ ⼍ ⼎ ⼏ ⼐ ⼑ ⼒ ⼓ ⼔ ⼕ ⼖ ⼗ ⼘ ⼙ ⼚ ⼛ ⼜ ⼝ ⼞ ⼟ ⼠ ⼡ ⼢ ⼣ ⼤ ⼥ ⼦ ⼧ ⼨ ⼩ ⼪ ⼫ ⼬ ⼭ ⼮ ⼯ ⼰ ⼱ ⼲ ⼳ ⼴ ⼵ ⼶ ⼷ ⼸ ⼹ ⼺ ⼻ ⼼ ⼽ ⼾ ⼿ ⽀ ⽁ ⽂ ⽃ ⽄ ⽅ ⽆ ⽇ ⽈ ⽉ ⽊ ⽋ ⽌ ⽍ ⽎ ⽏ ⽐ ⽑ ⽒ ⽓ ⽔ ⽕ ⽖ ⽗ ⽘ ⽙ ⽚ ⽛ ⽜ ⽝ ⽞ ⽟ ⽠ ⽡ ⽢ ⽣ ⽤ ⽥ ⽦ ⽧ ⽨ ⽩ ⽪ ⽫ ⽬ ⽭ ⽮ ⽯ ⽰ ⽱ ⽲ ⽳ ⽴ ⽵ ⽶ ⽷ ⽸ ⽹ ⽺ ⽻ ⽼ ⽽ ⽾ ⽿ ⾀ ⾁ ⾂ ⾃ ⾄ ⾅ ⾆ ⾇ ⾈ ⾉ ⾊ ⾋ ⾌ ⾍ ⾎ ⾏ ⾐ ⾑ ⾒ ⾓ ⾔ ⾕ ⾖ ⾗ ⾘ ⾙ ⾚ ⾛ ⾜ ⾝ ⾞ ⾟ ⾠ ⾡ ⾢ ⾣ ⾤ ⾥ ⾦ ⾧ ⾨ ⾩ ⾪ ⾫ ⾬ ⾭ ⾮ ⾯ ⾰ ⾱ ⾲ ⾳ ⾴ ⾵ ⾶ ⾷ ⾸ ⾹ ⾺ ⾻ ⾼ ⾽ ⾾ ⾿ ⿀ ⿁ ⿂ ⿃ ⿄ ⿅ ⿆ ⿇ ⿈ ⿉ ⿊ ⿋ ⿌ ⿍ ⿎ ⿏ ⿐ ⿑ ⿒ ⿓ ⿔ ⿕");
         // add a dummy bucket at the end 𪛖 is the last character in unihan order:
         charStr += QString::fromUtf8(" 𪛖");
-        return charStr.split(QLatin1String(" "),QString::SkipEmptyParts);
+        return charStr
+#if QT_VERSION < 0x051500
+            .split(QLatin1String(" "),QString::SkipEmptyParts);
+#else
+            .split(QLatin1String(" "),Qt::SkipEmptyParts);
+#endif
     }
     // special treatment for Chinese locales because these have the
     // collation options "stroke" and "pinyin" which require different
@@ -3864,13 +3873,23 @@ QStringList MLocale::exemplarCharactersIndex() const
     if(collationLocaleName.startsWith(QLatin1String("zh"))) {
         if(collationLocaleName.contains(QLatin1String("collation=zhuyin"))) {
             charStr = QString::fromUtf8("ㄅ ㄆ ㄇ ㄈ ㄉ ㄊ ㄋ ㄌ ㄍ ㄎ ㄏ ㄐ ㄑ ㄒ ㄓ ㄔ ㄕ ㄖ ㄗ ㄘ ㄙ ㄧ ㄨ ㄩ ㄚ ㄛ ㄜ ㄝ ㄞ ㄟ ㄠ ㄡ ㄢ ㄣ ㄤ ㄥ ㄦ ㄪ ㄫ ㄬ ㄭ");
-            return charStr.split(QLatin1String(" "),QString::SkipEmptyParts);
+            return charStr
+#if QT_VERSION < 0x051500
+                .split(QLatin1String(" "),QString::SkipEmptyParts);
+#else
+                .split(QLatin1String(" "),Qt::SkipEmptyParts);
+#endif
         }
         if(collationLocaleName.contains(QLatin1String("collation=pinyinsearch"))) {
             collationLocaleName = QLatin1String("zh_CN@collation=pinyinsearch");
             charStr = QString::fromUtf8("A B C D E F G H I J K L M N O P Q R S T U V W X Y Z");
             exemplarCharactersIndex =
-                charStr.split(QLatin1String(" "),QString::SkipEmptyParts);
+                charStr
+#if QT_VERSION < 0x051500
+                    .split(QLatin1String(" "),QString::SkipEmptyParts);
+#else
+                    .split(QLatin1String(" "),Qt::SkipEmptyParts);
+#endif
             // to get all characters with pinyin starting with z
             // (last one is 蓙) into the Z bucket
             exemplarCharactersIndex << QString::fromUtf8("Α"); // GREEK CAPITAL LETTER ALPHA
@@ -3912,8 +3931,12 @@ QStringList MLocale::exemplarCharactersIndex() const
     charStr.remove(']');
     charStr.remove('{');
     charStr.remove('}');
-    exemplarCharactersIndex = charStr.split(QLatin1String(" "),
-                                            QString::SkipEmptyParts);
+    exemplarCharactersIndex = charStr
+#if QT_VERSION < 0x051500
+        .split(QLatin1String(" "),QString::SkipEmptyParts);
+#else
+        .split(QLatin1String(" "),Qt::SkipEmptyParts);
+#endif
 
     // Special hack for the last Japanese bucket:
     if (exemplarCharactersIndex.last() == QString::fromUtf8("わ")) {
@@ -3930,7 +3953,12 @@ QStringList MLocale::exemplarCharactersIndex() const
          || collationLocaleName.startsWith(QLatin1String("zh_SG")))
         ) {
         charStr = QString::fromUtf8("ａ ｂ ｃ ｄ ｅ ｆ ｇ ｈ ｉ ｊ ｋ ｌ ｍ ｎ ｏ ｐ ｑ ｒ ｓ ｔ ｕ ｖ ｗ ｘ ｙ ｚ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z");
-        return charStr.split(QLatin1String(" "),QString::SkipEmptyParts);
+        return charStr
+#if QT_VERSION < 0x051500
+                .split(QLatin1String(" "),QString::SkipEmptyParts);
+#else
+                .split(QLatin1String(" "),Qt::SkipEmptyParts);
+#endif
     }
     return exemplarCharactersIndex;
 }
