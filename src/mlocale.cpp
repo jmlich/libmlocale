@@ -48,6 +48,10 @@ using namespace icu;
 #include <QDateTime>
 #include <QPointer>
 
+#if QT_VERSION >= 0x051500
+    #include <QRegularExpression>
+#endif
+
 #ifdef HAVE_ICU
 #include "mcollator.h"
 #include "mcalendar.h"
@@ -698,7 +702,13 @@ void MLocalePrivate::simplifyDateFormatForMixing(icu::DateFormat *df) const
         // hardcoded text in the language of the the time category and
         // most likely not understandable in the language of the
         // message locale:
-        icuFormatQString.replace(QRegExp("'[^']*'"), QLatin1String(""));
+        icuFormatQString.replace(
+#if QT_VERSION < 0x051500
+            QRegExp("'[^']*'"),
+#else
+            QRegularExpression("'[^']*'"),
+#endif
+            QLatin1String(""));
         // use stand-alone versions of month names and weekday names only
         // inflected versions will make no sense in the context of a different
         // language:
@@ -875,10 +885,22 @@ bool MLocalePrivate::mixingSymbolsWanted(const QString &categoryNameMessages, co
                       || categoryScriptTime == QLatin1String("Hebr"));
     bool messagesIsRtl = (categoryScriptMessages == QLatin1String("Arab")
                           || categoryScriptMessages == QLatin1String("Hebr"));
-    if (categoryNameTime.contains(QRegExp("@.*mix-time-and-language=yes"))) {
+    if (categoryNameTime.contains(
+#if QT_VERSION < 0x051500
+        QRegExp("@.*mix-time-and-language=yes")
+#else
+        QRegularExpression("@.*mix-time-and-language=yes")
+#endif
+    )) {
         return true;
     }
-    else if(!categoryNameTime.contains(QRegExp("@.*mix-time-and-language=no"))
+    else if(!categoryNameTime.contains(
+#if QT_VERSION < 0x051500
+        QRegExp("@.*mix-time-and-language=no")
+#else
+        QRegularExpression("@.*mix-time-and-language=no")
+#endif
+    )
        && languageMessages != languageTime
        && languageMessages != "zh"
        && languageMessages != "ja"
@@ -1651,6 +1673,7 @@ bool MLocalePrivate::parseIcuLocaleString(const QString &localeString, QString *
     // as in the above example, but there is the exception
     // es_419, i.e. Spanish in Latin America where the “country code”
     // is “419”.
+#if QT_VERSION < 0x051500
     QRegExp regexp("^([a-z]{2,3})(?:_([A-Z][a-z]{3,3}))?(?:_([A-Z]{2,2}|419))?(?:_{1,2}([A-Z][A-Z_]*))?(?:@.*)?$");
     if (regexp.indexIn(localeString) == 0
         && regexp.capturedTexts().size() == 5) {
@@ -1660,6 +1683,18 @@ bool MLocalePrivate::parseIcuLocaleString(const QString &localeString, QString *
         *variant  = regexp.capturedTexts().at(4); // "" if no match
         return true;
     }
+#else
+    QRegularExpression regexp("^([a-z]{2,3})(?:_([A-Z][a-z]{3,3}))?(?:_([A-Z]{2,2}|419))?(?:_{1,2}([A-Z][A-Z_]*))?(?:@.*)?$");
+    QRegularExpressionMatch match = regexp.match(localeString);
+
+    if (match.hasMatch() && match.capturedTexts().size() == 5) {
+        *language = match.captured(1);
+        *script = match.captured(2);
+        *country = match.captured(3);
+        *variant = match.captured(4);
+        return true;
+    }
+#endif
     else {
         *language = "";
         *script = "";
@@ -1747,8 +1782,8 @@ cleanLanguageCountryPosix(QString &localeString)
     // let’s make this behave the same way as the icu locale names work for es_419,
     // we only use LANG as a fallback to specify a locale when gconf isn’t available
     // or doesn’t work.
+#if QT_VERSION < 0x051500
     QRegExp regexp("([a-z]{2,3})(_([A-Z]{2,2}|419))?(?:.(?:[a-zA-Z0-9-]+))?(@([A-Z][a-z]+))?");
-
     if (regexp.indexIn(localeString) == 0 &&
             regexp.capturedTexts().size() == 6) { // size of regexp pattern above
         QStringList strings;
@@ -1764,7 +1799,30 @@ cleanLanguageCountryPosix(QString &localeString)
 
         // we don't need variant
         return strings.join("_");
-    } else {
+    }
+#else
+    QRegularExpression regexp("([a-z]{2,3})(_([A-Z]{2,2}|419))?(?:.(?:[a-zA-Z0-9-]+))?(@([A-Z][a-z]+))?");
+    QRegularExpressionMatch match = regexp.match(localeString);
+
+    if (match.hasMatch()
+            && match.capturedTexts().size() == 6) { // size of regexp pattern above
+        QStringList strings;
+        strings << match.captured(1); // language
+
+        // POSIX locale modifier, interpreted as script
+        if (!match.captured(5).isEmpty()) {
+            strings << match.captured(5);
+        }
+
+        if (!match.captured(3).isEmpty()) {
+            strings << match.captured(3); // country
+        }
+
+        // we don't need variant
+        return strings.join("_");
+    }
+#endif
+    else {
         //Malformed locale code
         return QString(PosixStr);
     }
@@ -2817,7 +2875,13 @@ void MLocalePrivate::fixFormattedNumberForRTL(QString *formattedNumber) const
         // (actually some of the Arabic currency symbols have RLM markers in the icu
         // data ...).
         removeDirectionalFormattingCodes(formattedNumber);
-        if(formattedNumber->contains(QRegExp(QString::fromUtf8("[٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹]")))) {
+        if(formattedNumber->contains(
+#if QT_VERSION < 0x051500
+            QRegExp(QString::fromUtf8("[٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹]")))
+#else
+            QRegularExpression(QString::fromUtf8("[٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹]")))
+#endif
+        ) {
             swapPostAndPrefixOfFormattedNumber(formattedNumber);
         }
     }
@@ -2872,7 +2936,13 @@ void MLocalePrivate::fixFormattedNumberForRTL(QString *formattedNumber) const
 void MLocalePrivate::fixParseInputForRTL(QString *formattedNumber) const
 {
     removeDirectionalFormattingCodes(formattedNumber);
-    if(formattedNumber->contains(QRegExp(QString::fromUtf8("[٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹]")))) {
+    if(formattedNumber->contains(
+#if QT_VERSION < 0x051500
+        QRegExp(QString::fromUtf8("[٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹]")))
+#else
+        QRegularExpression(QString::fromUtf8("[٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹]")))
+#endif
+    ) {
         swapPostAndPrefixOfFormattedNumber(formattedNumber);
     }
 }
@@ -4798,8 +4868,14 @@ QString MLocalePrivate::formatPhoneNumber( const QString& phoneNumber,
     MLocale::PhoneNumberGrouping grouping ) const
 {
   // first do sanity check of the input string
+#if QT_VERSION < 0x051500
   QRegExp rx( "\\+?\\d*" );
   if ( ! rx.exactMatch( phoneNumber ) )
+#else
+  QRegularExpression rx( QRegularExpression::anchoredPattern("\\+?\\d*") );
+  QRegularExpressionMatch match = rx.match(phoneNumber);
+  if (!match.hasMatch()) {
+#endif
   {
     qWarning( "MLocale::formatPhoneNumber: cannot understand number: %s",
 	      qPrintable( phoneNumber ) );

@@ -22,6 +22,10 @@
 #include <QDebug>
 #include <QString>
 
+#if QT_VERSION >= 0x051500
+    #include <QRegularExpression>
+#endif
+
 #include <unicode/unistr.h>
 #include <unicode/datefmt.h>
 
@@ -326,7 +330,11 @@ QString MIcuConversions::icuDatePatternEscaped(const QString &str)
 QString MIcuConversions::parseOption(const QString &localeName, const QString &option)
 {
     QString value;
+#if QT_VERSION < 0x051500
     QRegExp regexp("^[^@]+@.*"+QRegExp::escape(option)+"=([^@=;]+)($|;.*$)");
+#else
+    QRegularExpression regexp("^[^@]+@.*"+QRegularExpression::escape(option)+"=([^@=;]+)($|;.*$)");
+#endif
     if(regexp.indexIn(localeName) >= 0 && regexp.capturedTexts().size() == 3) {
         value = regexp.capturedTexts().at(1);
     }
@@ -339,7 +347,11 @@ QString MIcuConversions::setOption(const QString &localeName, const QString &opt
     if(!newLocaleName.isEmpty() && !option.isEmpty()) {
         if(value.isEmpty()) { // remove option completely
             if(newLocaleName.contains('@') && newLocaleName.contains(option)) {
+#if QT_VERSION < 0x051500
                 QRegExp regexp("^([^@]+@.*)"+QRegExp::escape(option)+"=[^@=;]+($|;.*$)");
+#else
+                QRegularExpression regexp("^([^@]+@.*)"+QRegularExpression::escape(option)+"=[^@=;]+($|;.*$)");
+#endif
                 newLocaleName.replace(regexp, "\\1\\2");
                 newLocaleName.replace(QLatin1String(";;"), QLatin1String(";"));
                 newLocaleName.replace(QLatin1String("@;"), QLatin1String("@"));
@@ -360,7 +372,11 @@ QString MIcuConversions::setOption(const QString &localeName, const QString &opt
                     newLocaleName += ';' + option + '=' + value;
             }
             else {
+#if QT_VERSION < 0x051500
                 QRegExp regexp("^([^@]+@.*"+QRegExp::escape(option)+"=)[^@=;]+($|;.*$)");
+#else
+                QRegularExpression regexp("^([^@]+@.*"+QRegularExpression::escape(option)+"=)[^@=;]+($|;.*$)");
+#endif
                 newLocaleName.replace(regexp, "\\1"+value+"\\2");
             }
         }
