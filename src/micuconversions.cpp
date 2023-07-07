@@ -332,12 +332,17 @@ QString MIcuConversions::parseOption(const QString &localeName, const QString &o
     QString value;
 #if QT_VERSION < 0x051500
     QRegExp regexp("^[^@]+@.*"+QRegExp::escape(option)+"=([^@=;]+)($|;.*$)");
-#else
-    QRegularExpression regexp("^[^@]+@.*"+QRegularExpression::escape(option)+"=([^@=;]+)($|;.*$)");
-#endif
     if(regexp.indexIn(localeName) >= 0 && regexp.capturedTexts().size() == 3) {
         value = regexp.capturedTexts().at(1);
     }
+#else
+    QRegularExpression regexp("^[^@]+@.*"+QRegularExpression::escape(option)+"=([^@=;]+)($|;.*$)");
+    QRegularExpressionMatch match = regexp.match(localeName);
+
+    if (match.hasMatch() && match.capturedTexts().size() == 3) {
+        value = match.captured(1);
+    }
+#endif
     return value;
 }
 
