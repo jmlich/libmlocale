@@ -2876,13 +2876,13 @@ void MLocalePrivate::fixFormattedNumberForRTL(QString *formattedNumber) const
         // (actually some of the Arabic currency symbols have RLM markers in the icu
         // data ...).
         removeDirectionalFormattingCodes(formattedNumber);
-        if(formattedNumber->contains(
+        if (formattedNumber->contains(
 #if QT_VERSION < 0x051500
-            QRegExp(QString::fromUtf8("[٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹]")))
+            QRegExp(QString::fromUtf8("[٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹]"))
 #else
-            QRegularExpression(QString::fromUtf8("[٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹]")))
+            QRegularExpression(QString::fromUtf8("[٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹]"))
 #endif
-        ) {
+        )) {
             swapPostAndPrefixOfFormattedNumber(formattedNumber);
         }
     }
@@ -2929,6 +2929,7 @@ void MLocalePrivate::fixFormattedNumberForRTL(QString *formattedNumber) const
     formattedNumber->prepend(QChar(0x202A)); // LEFT-TO-RIGHT EMBEDDING
     formattedNumber->append(QChar(0x202C)); // POP DIRECTIONAL FORMATTING
 #endif
+    Q_UNUSED(q)
     return;
 }
 #endif
@@ -4875,7 +4876,7 @@ QString MLocalePrivate::formatPhoneNumber( const QString& phoneNumber,
 #else
   QRegularExpression rx( QRegularExpression::anchoredPattern("\\+?\\d*") );
   QRegularExpressionMatch match = rx.match(phoneNumber);
-  if (!match.hasMatch()) {
+  if (!match.hasMatch())
 #endif
   {
     qWarning( "MLocale::formatPhoneNumber: cannot understand number: %s",
