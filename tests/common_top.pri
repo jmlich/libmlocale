@@ -16,6 +16,7 @@ QMAKE_LIBDIR += ../../lib /usr/local/lib
 CONFIG += debug
 CONFIG -= app_bundle
 QT += testlib
+greaterThan(QT_MAJOR_VERSION,5) QT += core5compat
 TEMPLATE = app
 # DEFINES += QT_NO_DEBUG_OUTPUT
 DEFINES += UNIT_TEST

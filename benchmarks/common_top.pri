@@ -13,6 +13,7 @@ DEPENDPATH = $$INCLUDEPATH
 QMAKE_LIBDIR += ../../lib
 CONFIG += debug
 QT += testlib
+greaterThan(QT_MAJOR_VERSION,5) QT += core5compat
 TEMPLATE = app
 # DEFINES += QT_NO_DEBUG_OUTPUT
 DEFINES += UNIT_TEST
